@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:qubehealthtest/Models/feelinghistorymodel.dart';
@@ -20,18 +19,19 @@ class FeelingApiController extends GetxController {
   Future<FeelingHistoryModel?> fetchfeelingsHistory() async {
     isLoading(true);
     if (await _apiProvider.getConnectivityStatus()) {
-      var response = await _apiProvider.post(url: getUserFeerlings);
+      String requestJson =
+          json.encode({"feeling_date": "15-04-2022", "user_id": "3206161992"});
+      var response = await _apiProvider.post(
+          url: getUserFeerlings, requestJson: requestJson);
       try {
-        if (response["status"] == 200) {
+        if (response["status"] == "200") {
           isLoading(false);
+          log("loading value is ${isLoading.value}");
           feelingHistoryData = FeelingHistoryModel.fromJson(response);
+          log("feeling data is :$feelingHistoryData");
         } else {
           isLoading(false);
-          //load data locally done due to not received api key
-          var decodedData = json
-              .decode(await rootBundle.loadString('assets/sampleData.json'));
-          feelingHistoryData = FeelingHistoryModel.fromJson(decodedData);
-          log(feelingHistoryData!.data!.videoArr![0].toString());
+          Get.snackbar("Something Went Wrong", "Please try leater");
         }
       } on Exception catch (e) {
         log(e.toString());

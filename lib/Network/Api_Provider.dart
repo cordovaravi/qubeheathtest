@@ -31,7 +31,6 @@ class ApiProvider {
           .post(Uri.parse(_baseUrl + url), body: requestJson, headers: {
         "x-api-key": "f6d646a6c2f2df883ea0cccaa4097358ede98284",
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
       });
 
       responseJson = _response(response);

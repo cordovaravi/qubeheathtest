@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/src/size_extension.dart';
 import 'package:get/get.dart';
 import 'package:qubehealthtest/Controller/FeelinghistoryApi.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FeelingHistory extends StatefulWidget {
   const FeelingHistory({Key? key}) : super(key: key);
@@ -29,142 +30,297 @@ class _FeelingHistoryState extends State<FeelingHistory> {
         title: Text("Your Feeling history",
             style: TextStyle(fontSize: 20, color: Colors.black)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 14, top: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Your feelings from last 30 days",
-                style: TextStyle(fontSize: 16.sp),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 100,
-                width: double.infinity,
-                child: ListView.builder(
-                  itemCount: 5,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return FeelingPercentWidget();
-                  },
+      body: Obx(
+        () => feelingApiController.isLoading.value
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: const EdgeInsets.only(left: 14, top: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Your feelings from last 30 days",
+                        style: TextStyle(fontSize: 16.sp),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "happy",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "sad",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "energy",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "calm",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "angry",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                          FeelingPercentWidget(
+                            active: feelingApiController.feelingHistoryData
+                                        ?.data?.feelingPercentage?.happy ==
+                                    "0"
+                                ? false
+                                : true,
+                            feelingType: "boared",
+                            feelingPercent: feelingApiController
+                                    .feelingHistoryData
+                                    ?.data
+                                    ?.feelingPercentage
+                                    ?.happy
+                                    .toString() ??
+                                "",
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        child: Divider(),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Color(0xffC6E5F7),
+                            borderRadius: BorderRadius.circular(5)),
+                        padding: EdgeInsets.all(5),
+                        child: Text("${DateTime.now().day} jun, 2022"),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      DatePicker(
+                        DateTime.now(),
+                        initialSelectedDate: DateTime.now(),
+                        selectionColor: Colors.black,
+                        selectedTextColor: Colors.white,
+                        onDateChange: (date) {},
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        child: Divider(),
+                      ),
+                      if (feelingApiController
+                              .feelingHistoryData?.data?.feelingList?.length !=
+                          0) ...{
+                        Container(
+                          height: 150,
+                          width: double.infinity,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: feelingApiController
+                                .feelingHistoryData?.data?.feelingList?.length,
+                            itemBuilder: (context, index) {
+                              return TimeFeelingTile(
+                                  dateTime: "9 AM - 12 PM",
+                                  emoticons: feelingApiController
+                                      .feelingHistoryData!
+                                      .data!
+                                      .feelingList![index]
+                                      .feelingName
+                                      .toString());
+                            },
+                          ),
+                        )
+                      },
+                      // TimeFeelingTile(
+                      //     dateTime: "1PM - 4PM", emoticons: "😡 Love"),
+                      // TimeFeelingTile(
+                      //     dateTime: "4PM - 6PM", emoticons: "😡 Love"),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        child: Divider(),
+                      ),
+                      Text(
+                        feelingApiController
+                            .feelingHistoryData!.data!.videoArr!.first.title!,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(feelingApiController.feelingHistoryData!.data!
+                          .videoArr!.first.description!),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                          height: 140.sp,
+                          width: double.infinity,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: feelingApiController
+                                .feelingHistoryData!.data!.videoArr!.length,
+                            itemBuilder: (context, index) {
+                              final viobj = feelingApiController
+                                  .feelingHistoryData!.data!.videoArr![index];
+                              return InkWell(
+                                onTap: () async {
+                                  await launchUrl(
+                                      Uri.parse(viobj.youtubeUrl.toString()));
+                                },
+                                child: VideoThubnail(
+                                  imagePath: thumbnail[index],
+                                ),
+                              );
+                            },
+                          )),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Divider(),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    color: Color(0xffC6E5F7),
-                    borderRadius: BorderRadius.circular(5)),
-                padding: EdgeInsets.all(5),
-                child: Text("${DateTime.now().day} may, 2022"),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              DatePicker(
-                DateTime.now(),
-                initialSelectedDate: DateTime.now(),
-                selectionColor: Colors.black,
-                selectedTextColor: Colors.white,
-                onDateChange: (date) {},
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Divider(),
-              ),
-              TimeFeelingTile(dateTime: "9AM - 12PM", emoticons: "🥰 Love"),
-              TimeFeelingTile(dateTime: "1PM - 4PM", emoticons: "😡 Love"),
-              TimeFeelingTile(dateTime: "4PM - 6PM", emoticons: "😡 Love"),
-              Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Divider(),
-              ),
-              Text(
-                "You may find This intresting",
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Text(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sit euismod risus elementum magna scelerisque nunc sed varius. Tellus quis tristique adipiscing sed metus, sit ac adipiscing. Leo aenean sed eu purus maecenas posuere "),
-              SizedBox(
-                height: 15,
-              ),
-              Container(
-                  height: 140.sp,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: thumbnail.length,
-                    itemBuilder: (context, index) {
-                      return VideoThubnail(
-                        imagePath: thumbnail[index],
-                      );
-                    },
-                  )),
-              SizedBox(
-                height: 20,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
 }
 
 class FeelingPercentWidget extends StatelessWidget {
-  const FeelingPercentWidget({
+  final String feelingType;
+  final String feelingPercent;
+  final bool active;
+  FeelingPercentWidget({
+    required this.feelingPercent,
+    required this.feelingType,
+    required this.active,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          margin: EdgeInsets.only(left: 10),
-          height: 80,
-          width: 40,
-          decoration: BoxDecoration(
-              color: Color(0xffF1F2F3),
-              borderRadius: BorderRadius.circular(20)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  "30%",
-                  style: TextStyle(fontSize: 12),
+    getImagePath({required String nameOfFeeling}) {
+      switch (nameOfFeeling) {
+        case "happy":
+          return "assets/happy.png";
+
+        case "sad":
+          return "assets/sad.png";
+
+        case "energy":
+          return "assets/energy.png";
+
+        case "calm":
+          return "assets/calm.png";
+
+        case "boared":
+          return "assets/bored.png";
+
+        case "angry":
+          return "assets/angry.png";
+      }
+    }
+
+    return Stack(children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            // margin: EdgeInsets.only(left: 10),
+            height: 80,
+            width: 40,
+            decoration: BoxDecoration(
+                color: Color(0xffF1F2F3),
+                borderRadius: BorderRadius.circular(20)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    this.active ? "${this.feelingPercent}%" : "",
+                    style: TextStyle(fontSize: 12),
+                  ),
                 ),
-              ),
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Color(0xff85C454),
-                child: Image.asset(
-                  "assets/happy.png",
-                  height: 20,
-                  width: 20,
-                ),
-              )
-            ],
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor:
+                      this.active ? Color(0xff85C454) : Colors.green.shade100,
+                  child: Image.asset(
+                    getImagePath(nameOfFeeling: this.feelingType)!,
+                    height: 20,
+                    width: 20,
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-        Text(
-          "   data",
-          style: TextStyle(fontSize: 12),
-        ),
-      ],
-    );
+          Text(
+            "${this.feelingType}",
+            style: TextStyle(
+                fontSize: 12,
+                color: this.active ? Colors.black : Colors.grey.shade300),
+          ),
+        ],
+      ),
+    ]);
   }
 }
 
@@ -196,6 +352,28 @@ class TimeFeelingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    getImagePath({required String nameOfFeeling}) {
+      switch (nameOfFeeling) {
+        case "happy":
+          return "assets/happy.png";
+
+        case "sad":
+          return "assets/sad.png";
+
+        case "energy":
+          return "assets/energy.png";
+
+        case "calm":
+          return "assets/calm.png";
+
+        case "bored":
+          return "assets/bored.png";
+
+        case "angry":
+          return "assets/angry.png";
+      }
+    }
+
     return Container(
       margin: EdgeInsets.all(10),
       child: Row(
@@ -204,7 +382,11 @@ class TimeFeelingTile extends StatelessWidget {
           SizedBox(
             width: 10,
           ),
-          Text("${emoticons}")
+          CircleAvatar(
+              radius: 10,
+              child: Image.asset(
+                  getImagePath(nameOfFeeling: emoticons.toLowerCase())!)),
+          Text("\t${emoticons}")
         ],
       ),
     );
